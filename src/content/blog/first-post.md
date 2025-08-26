@@ -1,7 +1,7 @@
 ---
-title: "First post"
-description: "Lorem ipsum dolor sit amet"
-pubDate: "Jul 08 2022"
+title: "Malware Analysis of LsaCallAuthenticationPackage: A SOC Analyst’s Guide"
+description: "When malware authors want to manipulate Windows authentication, one of their most valuable targets is Kerberos. At the heart of Kerberos interactions inside Windows lies the function LsaCallAuthenticationPackage."
+pubDate: "August 25 2025"
 heroImage: "/blog-placeholder-3.jpg"
 ---
 Malware Analysis of LsaCallAuthenticationPackage: A SOC Analyst’s Guide
