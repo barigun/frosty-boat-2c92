@@ -4,13 +4,90 @@ description: "Lorem ipsum dolor sit amet"
 pubDate: "Jul 08 2022"
 heroImage: "/blog-placeholder-3.jpg"
 ---
+Malware Analysis of LsaCallAuthenticationPackage: A SOC Analyst’s Guide
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Vitae ultricies leo integer malesuada nunc vel risus commodo viverra. Adipiscing enim eu turpis egestas pretium. Euismod elementum nisi quis eleifend quam adipiscing. In hac habitasse platea dictumst vestibulum. Sagittis purus sit amet volutpat. Netus et malesuada fames ac turpis egestas. Eget magna fermentum iaculis eu non diam phasellus vestibulum lorem. Varius sit amet mattis vulputate enim. Habitasse platea dictumst quisque sagittis. Integer quis auctor elit sed vulputate mi. Dictumst quisque sagittis purus sit amet.
+⸻
 
-Morbi tristique senectus et netus. Id semper risus in hendrerit gravida rutrum quisque non tellus. Habitasse platea dictumst quisque sagittis purus sit amet. Tellus molestie nunc non blandit massa. Cursus vitae congue mauris rhoncus. Accumsan tortor posuere ac ut. Fringilla urna porttitor rhoncus dolor. Elit ullamcorper dignissim cras tincidunt lobortis. In cursus turpis massa tincidunt dui ut ornare lectus. Integer feugiat scelerisque varius morbi enim nunc. Bibendum neque egestas congue quisque egestas diam. Cras ornare arcu dui vivamus arcu felis bibendum. Dignissim suspendisse in est ante in nibh mauris. Sed tempus urna et pharetra pharetra massa massa ultricies mi.
+Introduction
 
-Mollis nunc sed id semper risus in. Convallis a cras semper auctor neque. Diam sit amet nisl suscipit. Lacus viverra vitae congue eu consequat ac felis donec. Egestas integer eget aliquet nibh praesent tristique magna sit amet. Eget magna fermentum iaculis eu non diam. In vitae turpis massa sed elementum. Tristique et egestas quis ipsum suspendisse ultrices. Eget lorem dolor sed viverra ipsum. Vel turpis nunc eget lorem dolor sed viverra. Posuere ac ut consequat semper viverra nam. Laoreet suspendisse interdum consectetur libero id faucibus. Diam phasellus vestibulum lorem sed risus ultricies tristique. Rhoncus dolor purus non enim praesent elementum facilisis. Ultrices tincidunt arcu non sodales neque. Tempus egestas sed sed risus pretium quam vulputate. Viverra suspendisse potenti nullam ac tortor vitae purus faucibus ornare. Fringilla urna porttitor rhoncus dolor purus non. Amet dictum sit amet justo donec enim.
+When malware authors want to manipulate Windows authentication, one of their most valuable targets is Kerberos. At the heart of Kerberos interactions inside Windows lies the function LsaCallAuthenticationPackage.
 
-Mattis ullamcorper velit sed ullamcorper morbi tincidunt. Tortor posuere ac ut consequat semper viverra. Tellus mauris a diam maecenas sed enim ut sem viverra. Venenatis urna cursus eget nunc scelerisque viverra mauris in. Arcu ac tortor dignissim convallis aenean et tortor at. Curabitur gravida arcu ac tortor dignissim convallis aenean et tortor. Egestas tellus rutrum tellus pellentesque eu. Fusce ut placerat orci nulla pellentesque dignissim enim sit amet. Ut enim blandit volutpat maecenas volutpat blandit aliquam etiam. Id donec ultrices tincidunt arcu. Id cursus metus aliquam eleifend mi.
+For most analysts, this API may look like just another entry in secur32.dll. But for attackers, it’s a direct line into LSASS—the Local Security Authority Subsystem Service—which manages logon sessions and Kerberos tickets. Abuse of this function enables attackers to forge tickets, replay them, or quietly persist in Active Directory environments.
 
-Tempus quam pellentesque nec nam aliquam sem. Risus at ultrices mi tempus imperdiet. Id porta nibh venenatis cras sed felis eget velit. Ipsum a arcu cursus vitae. Facilisis magna etiam tempor orci eu lobortis elementum. Tincidunt dui ut ornare lectus sit. Quisque non tellus orci ac. Blandit libero volutpat sed cras. Nec tincidunt praesent semper feugiat nibh sed pulvinar proin gravida. Egestas integer eget aliquet nibh praesent tristique magna.
+This article explains what the function does, why malware abuses it, and how a SOC analyst can spot the difference between legitimate authentication calls and malicious ticket injection.
+
+⸻
+
+Function in Malware Context
+	•	Legitimate use: Windows itself and some authentication subsystems use this API to request or validate logon credentials. Typical business apps do not call it directly.
+	•	Malicious use: Malware leverages it to inject forged Kerberos tickets (Golden/Silver tickets) or replay stolen ones (Pass-the-Ticket). This bypasses the Domain Controller entirely—no authentication traffic leaves the infected host.
+	•	Attacker goals:
+	•	Persistence with a long-lived Golden Ticket.
+	•	Lateral movement using Silver Tickets.
+	•	Privilege escalation by impersonating high-value accounts.
+
+⸻
+
+SOC Analyst’s View
+
+Before the call
+	•	The malware usually acquires a handle to LSASS (requires SeDebugPrivilege).
+	•	It resolves LsaCallAuthenticationPackage dynamically via GetProcAddress("secur32.dll").
+	•	It prepares Kerberos-specific request structures (e.g., KERB_SUBMIT_TKT_REQUEST).
+
+After the call
+	•	New Kerberos tickets appear in LSASS memory—without a request to the Domain Controller.
+	•	On the wire: no Kerberos AS-REQ/TGS-REQ traffic. The authentication material just “shows up.”
+	•	Windows event logs may show mismatches between 4768 (TGT request) and 4769 (TGS request).
+
+Malicious vs. benign
+	•	Benign: Very rare outside LSASS itself. High-level APIs like LogonUser() or SSPI functions handle normal auth.
+	•	Malicious: Non-system processes invoking this API, especially in combination with LSASS handle access. If you see a third-party process doing it, raise suspicion.
+
+⸻
+
+Reverse Engineering Angle
+
+When reversing malware that calls LsaCallAuthenticationPackage, you’ll often see:
+	•	Imports:
+	•	Either directly: LsaCallAuthenticationPackage in the IAT.
+	•	Or indirectly: resolved at runtime using GetProcAddress.
+	•	Assembly patterns (x86 snippet):
+
+push offset AuthStruct       ; Kerberos request structure
+push AuthPkgHandle           ; handle from LsaLookupAuthenticationPackage
+push hLsaConnection          ; handle from LsaRegisterLogonProcess
+call ds:LsaCallAuthenticationPackage
+
+
+	•	Memory structures:
+	•	Malware often fills a KERB_SUBMIT_TKT_REQUEST struct with forged ticket data.
+	•	Tools like Rubeus and Mimikatz rely on this approach.
+	•	Dynamic behavior:
+	•	Syscall traces show LSASS interaction but no DC traffic.
+	•	PE strings may reveal "kerberos", "krbtgt", or SPNs like "cifs/", "ldap/".
+
+⸻
+
+Detection & Hunting
+
+Host-based signals
+	•	Sysmon Event 10: Process access to lsass.exe from a non-system binary.
+	•	Sysmon Event 7: Odd DLLs loaded into LSASS (possible malicious SSPs).
+	•	Command-line indicators: Use of tools (Rubeus, mimikatz kerberos::ptt) in logs.
+
+Event logs
+	•	4768/4769 anomalies: TGS tickets issued without a TGT request.
+	•	4672: Special privileges assigned (SeDebugPrivilege) before LSASS access.
+	•	7045: Service creation that may act as a launcher for ticket injection.
+
+Practical hunt rule idea
+	•	Alert when a non-Microsoft signed process both:
+	•	Opens a handle to lsass.exe, and
+	•	Resolves or imports LsaCallAuthenticationPackage.
+
+⸻
+
+Conclusion
+
+LsaCallAuthenticationPackage is a low-level function with high impact. Rare in normal applications, but abused heavily in Kerberos attacks, it represents a perfect case study for malware analysts and SOC defenders.
