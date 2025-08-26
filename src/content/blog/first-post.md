@@ -19,8 +19,12 @@ This article explains what the function does, why malware abuses it, and how a S
 ⸻
 
 Function in Malware Context
-	•	Legitimate use: Windows itself and some authentication subsystems use this API to request or validate logon credentials. Typical business apps do not call it directly.
-	•	Malicious use: Malware leverages it to inject forged Kerberos tickets (Golden/Silver tickets) or replay stolen ones (Pass-the-Ticket). This bypasses the Domain Controller entirely—no authentication traffic leaves the infected host.
+
+	•	Legitimate use: Windows itself and some authentication subsystems use this API to request or validate logon credentials. 
+ 	Typical business apps do not call it directly.
+	•	Malicious use: Malware leverages it to inject forged Kerberos tickets (Golden/Silver tickets) or replay stolen ones (Pass-the-Ticket). This bypasses the Domain 
+Controller entirely—no authentication traffic leaves the infected host.
+
 	•	Attacker goals:
 	•	Persistence with a long-lived Golden Ticket.
 	•	Lateral movement using Silver Tickets.
@@ -31,24 +35,29 @@ Function in Malware Context
 SOC Analyst’s View
 
 Before the call
+
 	•	The malware usually acquires a handle to LSASS (requires SeDebugPrivilege).
 	•	It resolves LsaCallAuthenticationPackage dynamically via GetProcAddress("secur32.dll").
 	•	It prepares Kerberos-specific request structures (e.g., KERB_SUBMIT_TKT_REQUEST).
 
 After the call
+
 	•	New Kerberos tickets appear in LSASS memory—without a request to the Domain Controller.
 	•	On the wire: no Kerberos AS-REQ/TGS-REQ traffic. The authentication material just “shows up.”
 	•	Windows event logs may show mismatches between 4768 (TGT request) and 4769 (TGS request).
 
 Malicious vs. benign
+
 	•	Benign: Very rare outside LSASS itself. High-level APIs like LogonUser() or SSPI functions handle normal auth.
-	•	Malicious: Non-system processes invoking this API, especially in combination with LSASS handle access. If you see a third-party process doing it, raise suspicion.
+	•	Malicious: Non-system processes invoking this API, especially in combination with LSASS handle access. 
+ 	If you see a third-party process doing it, raise suspicion.
 
 ⸻
 
 Reverse Engineering Angle
 
 When reversing malware that calls LsaCallAuthenticationPackage, you’ll often see:
+
 	•	Imports:
 	•	Either directly: LsaCallAuthenticationPackage in the IAT.
 	•	Or indirectly: resolved at runtime using GetProcAddress.
@@ -72,16 +81,19 @@ call ds:LsaCallAuthenticationPackage
 Detection & Hunting
 
 Host-based signals
+
 	•	Sysmon Event 10: Process access to lsass.exe from a non-system binary.
 	•	Sysmon Event 7: Odd DLLs loaded into LSASS (possible malicious SSPs).
 	•	Command-line indicators: Use of tools (Rubeus, mimikatz kerberos::ptt) in logs.
 
 Event logs
+
 	•	4768/4769 anomalies: TGS tickets issued without a TGT request.
 	•	4672: Special privileges assigned (SeDebugPrivilege) before LSASS access.
 	•	7045: Service creation that may act as a launcher for ticket injection.
 
 Practical hunt rule idea
+
 	•	Alert when a non-Microsoft signed process both:
 	•	Opens a handle to lsass.exe, and
 	•	Resolves or imports LsaCallAuthenticationPackage.
