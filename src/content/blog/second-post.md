@@ -1,16 +1,98 @@
 ---
-title: "Second post"
-description: "Lorem ipsum dolor sit amet"
-pubDate: "Jul 15 2022"
+title: "Malware Analysis of LsaEnumerateLogonSessions"
+description: "Malware Analysis of LsaEnumerateLogonSessions"
+pubDate: "Aug 27 2025"
 heroImage: "/blog-placeholder-4.jpg"
 ---
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Vitae ultricies leo integer malesuada nunc vel risus commodo viverra. Adipiscing enim eu turpis egestas pretium. Euismod elementum nisi quis eleifend quam adipiscing. In hac habitasse platea dictumst vestibulum. Sagittis purus sit amet volutpat. Netus et malesuada fames ac turpis egestas. Eget magna fermentum iaculis eu non diam phasellus vestibulum lorem. Varius sit amet mattis vulputate enim. Habitasse platea dictumst quisque sagittis. Integer quis auctor elit sed vulputate mi. Dictumst quisque sagittis purus sit amet.
+ Malware Analysis of LsaEnumerateLogonSessions
 
-Morbi tristique senectus et netus. Id semper risus in hendrerit gravida rutrum quisque non tellus. Habitasse platea dictumst quisque sagittis purus sit amet. Tellus molestie nunc non blandit massa. Cursus vitae congue mauris rhoncus. Accumsan tortor posuere ac ut. Fringilla urna porttitor rhoncus dolor. Elit ullamcorper dignissim cras tincidunt lobortis. In cursus turpis massa tincidunt dui ut ornare lectus. Integer feugiat scelerisque varius morbi enim nunc. Bibendum neque egestas congue quisque egestas diam. Cras ornare arcu dui vivamus arcu felis bibendum. Dignissim suspendisse in est ante in nibh mauris. Sed tempus urna et pharetra pharetra massa massa ultricies mi.
+⸻
 
-Mollis nunc sed id semper risus in. Convallis a cras semper auctor neque. Diam sit amet nisl suscipit. Lacus viverra vitae congue eu consequat ac felis donec. Egestas integer eget aliquet nibh praesent tristique magna sit amet. Eget magna fermentum iaculis eu non diam. In vitae turpis massa sed elementum. Tristique et egestas quis ipsum suspendisse ultrices. Eget lorem dolor sed viverra ipsum. Vel turpis nunc eget lorem dolor sed viverra. Posuere ac ut consequat semper viverra nam. Laoreet suspendisse interdum consectetur libero id faucibus. Diam phasellus vestibulum lorem sed risus ultricies tristique. Rhoncus dolor purus non enim praesent elementum facilisis. Ultrices tincidunt arcu non sodales neque. Tempus egestas sed sed risus pretium quam vulputate. Viverra suspendisse potenti nullam ac tortor vitae purus faucibus ornare. Fringilla urna porttitor rhoncus dolor purus non. Amet dictum sit amet justo donec enim.
+🎯 Why This Function Matters
 
-Mattis ullamcorper velit sed ullamcorper morbi tincidunt. Tortor posuere ac ut consequat semper viverra. Tellus mauris a diam maecenas sed enim ut sem viverra. Venenatis urna cursus eget nunc scelerisque viverra mauris in. Arcu ac tortor dignissim convallis aenean et tortor at. Curabitur gravida arcu ac tortor dignissim convallis aenean et tortor. Egestas tellus rutrum tellus pellentesque eu. Fusce ut placerat orci nulla pellentesque dignissim enim sit amet. Ut enim blandit volutpat maecenas volutpat blandit aliquam etiam. Id donec ultrices tincidunt arcu. Id cursus metus aliquam eleifend mi.
+LsaEnumerateLogonSessions is an API in secur32.dll that lists all active logon sessions on a Windows system.
+	•	Legitimate use: Windows itself and some diagnostic tools may query session info.
+	•	Malware use: Attackers abuse this function to map out which users are logged in—a first step before stealing Kerberos tickets, credentials, or impersonating accounts.
+	•	Think of it as the “who’s home right now?” API.
 
-Tempus quam pellentesque nec nam aliquam sem. Risus at ultrices mi tempus imperdiet. Id porta nibh venenatis cras sed felis eget velit. Ipsum a arcu cursus vitae. Facilisis magna etiam tempor orci eu lobortis elementum. Tincidunt dui ut ornare lectus sit. Quisque non tellus orci ac. Blandit libero volutpat sed cras. Nec tincidunt praesent semper feugiat nibh sed pulvinar proin gravida. Egestas integer eget aliquet nibh praesent tristique magna.
+⸻
+
+🦠 Malware Context
+
+How attackers use it:
+	1.	Call LsaEnumerateLogonSessions → get session IDs (LUIDs).
+	2.	Pair it with LsaGetLogonSessionData to pull usernames, domains, and ticket details.
+	3.	Choose high-value sessions (Domain Admin, service accounts) to target for dumping or ticket injection.
+
+Why it’s dangerous:
+	•	Lets malware silently discover privileged accounts without touching the Domain Controller.
+	•	Common in tools like Mimikatz and Rubeus.
+
+⸻
+
+🔍 SOC Analyst’s Lens
+
+What happens before the call
+	•	Process loads secur32.dll.
+	•	Often follows suspicious LSASS access (OpenProcess on lsass.exe).
+	•	Privilege escalation may occur (SeDebugPrivilege enabled).
+
+What happens after the call
+	•	A list of session identifiers (LUIDs) is returned.
+	•	Attacker then typically calls LsaGetLogonSessionData.
+	•	Next actions may include ticket dumping, Pass-the-Ticket, or privilege escalation.
+
+Benign vs Malicious
+
+Indicator	Normal (Benign)	Suspicious (Malicious)
+Caller	LSASS or legit diagnostic tools	Random unsigned binary
+Follow-up	Nothing further	Immediately calling LsaGetLogonSessionData or touching LSASS memory
+Frequency	Rare	Multiple rapid enumerations
+
+
+⸻
+
+🛠 Reverse Engineering Angle
+
+In a PE file (static view):
+	•	Look for imports from secur32.dll → LsaEnumerateLogonSessions.
+	•	Or runtime resolution: GetProcAddress("LsaEnumerateLogonSessions").
+
+In assembly (x86 snippet):
+
+push pLogonCount   ; receives number of sessions
+push pLogonList    ; receives pointer to LUID array
+call ds:LsaEnumerateLogonSessions
+
+	•	Returned: pointer to an array of LUIDs (Locally Unique Identifiers) representing sessions.
+
+Dynamic behavior:
+	•	Follow-on API: LsaGetLogonSessionData almost always appears next.
+	•	Sandbox trace: may show nothing outward (no network), since it’s purely local reconnaissance.
+
+⸻
+
+🕵️ Detection & Hunting
+
+Windows Event IDs
+	•	No direct event for the API itself.
+	•	Look for indirect signs:
+	•	4672 (privilege assigned) right before enumeration.
+	•	4624/4634 (logons/logoffs) that don’t align with normal user activity.
+
+Sysmon / EDR Signals
+	•	Sysmon 10: suspicious process accessing lsass.exe.
+	•	Sysmon 7: dynamic DLL loading (secur32.dll) by non-system process.
+
+Hunt Tips
+	•	Flag unsigned binaries resolving both LsaEnumerateLogonSessions and LsaGetLogonSessionData.
+	•	Build detection on process ancestry: script host → suspicious binary → LSASS interaction.
+
+⸻
+
+📝 Quick Recap
+	•	What it does: Lists all active logon sessions (LUIDs).
+	•	Why attackers care: Helps them spot valuable accounts to impersonate or dump.
+	•	How to detect: Look for unusual processes calling this API, especially if followed by LsaGetLogonSessionData.
+	•	SOC takeaway: If you see this outside of LSASS or trusted tools, it’s almost always bad news.
