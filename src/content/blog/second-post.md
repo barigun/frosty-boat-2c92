@@ -2,7 +2,6 @@
 title: "Analysis of LsaEnumerateLogonSessions"
 description: "Analysis of LsaEnumerateLogonSessions"
 pubDate: "Aug 27 2025"
-heroImage: "/blog-placeholder-4.jpg"
 ---
 
 Analysis of LsaEnumerateLogonSessions

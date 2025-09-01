@@ -2,7 +2,6 @@
 title: "Analysis of LsaCallAuthenticationPackage"
 description: "When malware authors want to manipulate Windows authentication, one of their most valuable targets is Kerberos. At the heart of Kerberos interactions inside Windows lies the function LsaCallAuthenticationPackage."
 pubDate: "Aug 27 2025"
-heroImage: "/blog-placeholder-3.jpg"
 ---
 Analysis of LsaCallAuthenticationPackage
 
