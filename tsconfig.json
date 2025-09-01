@@ -1,5 +1,14 @@
 {
-  "extends": "astro/tsconfigs/strict",
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "types": ["astro/client"]
+  },
   "include": ["src", "src/env.d.ts"],
   "exclude": ["dist", "worker-configuration.d.ts"]
 }
