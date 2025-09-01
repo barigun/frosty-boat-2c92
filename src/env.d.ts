@@ -1,5 +1,4 @@
-type Runtime = import("@astrojs/cloudflare").Runtime<Env>;
-
 declare namespace App {
-  interface Locals extends Runtime {}
+  // No server runtime locals for static build
+  interface Locals {}
 }
