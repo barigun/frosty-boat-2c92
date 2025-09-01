@@ -1,0 +1,33 @@
+---
+---
+<style>
+/* Scoped styles for the interactive prompt injection post */
+.pi * { box-sizing: border-box; }
+.pi { width: 100%; }
+.pi-header { text-align: center; margin: 0 0 1rem 0; }
+.pi-header h2 { margin: 0; font-size: 2rem; color: rgb(var(--black)); }
+.pi-header p { margin: 0.5rem 0 0; color: rgb(var(--gray)); }
+
+.pi-nav { margin: 1rem 0 2rem; border-bottom: 1px solid rgb(var(--gray-light)); position: sticky; top: 0; background: rgba(255,255,255,0.85); backdrop-filter: blur(6px); z-index: 1; padding: 0.5rem 0; }
+.pi-nav ul { list-style: none; padding: 0; margin: 0; display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+.pi-nav a { text-decoration: none; color: rgb(var(--gray)); padding: 0.5rem 0.25rem; }
+.pi-nav a:hover { color: rgb(var(--accent)); }
+
+.pi-card { background: #fff; border: 1px solid rgb(var(--gray-light)); border-radius: 12px; padding: 1rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03); }
+.pi-card h3, .pi-card h2 { margin-top: 0; }
+
+.pi-table { width: 100%; border-collapse: collapse; }
+.pi-table th, .pi-table td { border: 1px solid rgb(var(--gray-light)); padding: 0.5rem 0.75rem; text-align: left; }
+.pi-table th { background: #f9fafb; }
+
+.pi-grid-cards { display: grid; gap: 0.75rem; }
+@media (min-width: 640px) { .pi-grid-cards { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 960px) { .pi-grid-cards { grid-template-columns: repeat(3, 1fr); } }
+.pi-card-item { background: #fafafa; border: 1px solid rgb(var(--gray-light)); border-radius: 10px; padding: 1rem; }
+
+.pi-code-block { background: #f3f4f6; border-radius: 8px; padding: 1rem; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 0.9rem; overflow-x: auto; }
+.pi-output { background: #fff; border: 1px solid rgb(var(--gray-light)); border-radius: 8px; padding: 1rem; min-height: 50px; }
+
+@media (max-width: 720px) { .pi-nav ul { gap: 0.5rem; } }
+</style>
+
