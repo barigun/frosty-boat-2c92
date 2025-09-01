@@ -1,7 +1,20 @@
 {
   "version": 1,
   "include": [
-    "/*"
+    "/",
+    "/about",
+    "/blog/*",
+    "/rss.xml",
+    "/sitemap-index.xml",
+    "/sitemap-*.xml",
+    "/404"
+  ],
+  "exclude": [
+    "/assets/*",
+    "/fonts/*",
+    "/**/*.js",
+    "/**/*.css",
+    "/**/*.map",
+    "/**/*.{png,jpg,jpeg,svg,gif,webp,ico,avif}"
   ]
 }
-
