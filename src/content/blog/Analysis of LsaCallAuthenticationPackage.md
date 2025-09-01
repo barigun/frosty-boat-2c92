@@ -3,13 +3,25 @@ title: "Analysis of LsaCallAuthenticationPackage"
 description: "When malware authors want to manipulate Windows authentication, one of their most valuable targets is Kerberos. At the heart of Kerberos interactions inside Windows lies the function LsaCallAuthenticationPackage."
 pubDate: "Aug 27 2025"
 ---
-</head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unmasking Kerberos Attacks: A Deep Dive into LsaCallAuthenticationPackage</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    </head>
+        <style>
         body {
             font-family: 'Inter', sans-serif;
             @apply bg-gray-900 text-gray-200;
             word-wrap: break-word;
             overflow-wrap: break-word;
             hyphens: auto;
+        }
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
     </style>
 </head>
