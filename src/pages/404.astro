@@ -1,0 +1,27 @@
+---
+import BaseHead from "../components/BaseHead.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead title="Page Not Found" description="The page you’re looking for doesn’t exist." />
+    <style>
+      main { text-align: center; }
+      .big { font-size: 4rem; line-height: 1; margin: 0; }
+    </style>
+  </head>
+  <body>
+    <Header />
+    <main>
+      <h1 class="big">404</h1>
+      <p>Sorry, we couldn’t find that page.</p>
+      <p><a href="/">Go back home</a></p>
+    </main>
+    <Footer />
+  </body>
+  
+</html>
+
