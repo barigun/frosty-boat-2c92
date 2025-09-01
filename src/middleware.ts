@@ -7,7 +7,7 @@ export const onRequest: MiddlewareHandler = async (context, next) => {
   // If/when inline scripts are removed, tighten by dropping 'unsafe-inline' and adding nonces.
   const csp = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline'",
+    "script-src 'self'",
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: https:",
     "font-src 'self'",
@@ -43,4 +43,3 @@ export const onRequest: MiddlewareHandler = async (context, next) => {
 
   return res;
 };
-
