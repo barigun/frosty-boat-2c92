@@ -30,6 +30,7 @@
     "deploy": "astro build && wrangler deploy",
     "dev": "astro dev",
     "preview": "astro build && wrangler dev",
+    "preview:static": "astro preview",
     "types": "wrangler types"
   },
   "type": "module"
