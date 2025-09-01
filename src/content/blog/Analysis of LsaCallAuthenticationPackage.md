@@ -3,36 +3,6 @@ title: "Analysis of LsaCallAuthenticationPackage"
 description: "When malware authors want to manipulate Windows authentication, one of their most valuable targets is Kerberos. At the heart of Kerberos interactions inside Windows lies the function LsaCallAuthenticationPackage."
 pubDate: "Aug 27 2025"
 ---
-<!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unmasking Kerberos Attacks: A Deep Dive into LsaCallAuthenticationPackage</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            @apply bg-gray-900 text-gray-200;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            hyphens: auto;
-        }
-        pre {
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-        }
-    </style>
-</head>
-<body class="antialiased">
-    <div class="container mx-auto px-4 md:px-8 lg:px-16 py-12 max-w-4xl">
-        <header class="text-center mb-12">
-            <h1 class="text-3xl md:text-5xl font-extrabold text-white leading-tight mb-4">Unmasking Kerberos Attacks: A Deep Dive into LsaCallAuthenticationPackage</h1>
-            <p class="text-lg md:text-xl text-gray-400">Understanding a Critical Function for Offense and Defense</p>
-        </header>
-
         <main class="space-y-12">
             <section class="bg-gray-800 p-8 rounded-xl shadow-lg">
                 <h2 class="text-2xl md:text-3xl font-bold text-white mb-4">Introduction: A Low-Level Function with High Impact</h2>
@@ -122,4 +92,3 @@ call ds:LsaCallAuthenticationPackage</code></pre>
         <p>&copy; 2025. All rights reserved.</p>
     </footer>
 </body>
-</html>
