@@ -4,11 +4,20 @@ description: "When malware authors want to manipulate Windows authentication, on
 pubDate: "Aug 27 2025"
 ---
 </head>
+        body {
+            font-family: 'Inter', sans-serif;
+            @apply bg-gray-900 text-gray-200;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+        }
+    </style>
+</head>
 <body class="antialiased">
     <div class="container mx-auto px-4 md:px-8 lg:px-16 py-12 max-w-4xl">
         <header class="text-center mb-12">
-            <h1 class="text-3xl md:text-5xl font-extrabold text-white leading-tight mb-4">Kerberos Attacks: A Dive into LsaCallAuthenticationPackage</h1>
-            <p class="text-lg md:text-xl text-gray-400">Understanding a Function for Offense and Defense</p>
+            <h1 class="text-3xl md:text-5xl font-extrabold text-white leading-tight mb-4">Unmasking Kerberos Attacks: A Deep Dive into LsaCallAuthenticationPackage</h1>
+            <p class="text-lg md:text-xl text-gray-400">Understanding a Critical Function for Offense and Defense</p>
         </header>
 
         <main class="space-y-12">
