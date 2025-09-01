@@ -94,7 +94,9 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft && !data.un
 						posts.map((post) => (
 							<li>
 								<a href={`/blog/${post.id}/`}>
-									<img width={720} height={360} src={post.data.heroImage} alt="" loading="lazy" decoding="async" />
+									{post.data.heroImage && (
+										<img width={720} height={360} src={post.data.heroImage} alt="" loading="lazy" decoding="async" />
+									)}
 									<h4 class="title">{post.data.title}</h4>
 									<p class="date">
 										<FormattedDate date={post.data.pubDate} />
