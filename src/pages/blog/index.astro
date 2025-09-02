@@ -34,7 +34,7 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft && !data.un
 				<ul>
 					{posts.map((post) => (
 						<li>
-							<a href={`/blog/${post.id}/`}>
+						<a href={post.data.externalUrl ?? `/blog/${post.id}/`}>
 								<h4 class="title">{post.data.title}</h4>
 								<p class="date"><FormattedDate date={post.data.pubDate} /></p>
 							</a>
