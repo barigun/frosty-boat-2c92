@@ -3,25 +3,25 @@
 <style>
 /* Scoped styles for the AS-REP Roasting article */
 .asrep * { box-sizing: border-box; }
-.asrep { width: 100%; }
+.asrep { width: 100%; color: #0f172a; }
 
-.asrep .section { margin: 2rem 0; }
+.asrep .section { margin: 2.5rem 0; }
 .asrep .center { text-align: center; }
-.asrep .lead { color: rgb(var(--gray)); max-width: 58ch; margin: 0.5rem auto 0; }
+.asrep .lead { color: #475569; max-width: 65ch; margin: 0.75rem auto 0; }
 
 /* Simple chips and headers */
-.asrep h1 { font-size: 2.25rem; margin-bottom: 0.25rem; }
-.asrep h2 { font-size: 1.75rem; margin: 0; }
-.asrep h3 { font-size: 1.25rem; margin: 0; }
-.asrep p { color: rgb(var(--gray-dark)); }
+.asrep h1 { font-size: 2.5rem; line-height: 1.1; letter-spacing: -0.01em; color: #0f172a; margin-bottom: 0.25rem; font-weight: 800; }
+.asrep h2 { font-size: 1.875rem; color: #0f172a; margin: 0; font-weight: 700; }
+.asrep h3 { font-size: 1.125rem; color: #0f172a; margin: 0; font-weight: 700; }
+.asrep p { color: #334155; }
 
 /* Card */
-.asrep .card { background: #fff; border: 1px solid rgb(var(--gray-light)); border-radius: 12px; padding: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03); }
+.asrep .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1); }
 
 /* Toggle */
 .asrep .toggle-wrap { display:flex; align-items:center; justify-content:center; gap:0.5rem; margin-bottom: 0.75rem; }
-.asrep .toggle { appearance: none; width: 44px; height: 24px; background: #e5e7eb; border-radius: 9999px; position: relative; outline: none; cursor: pointer; border: 1px solid rgba(148,163,184,.6); }
-.asrep .toggle::after { content: ""; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; background: #fff; border-radius: 9999px; transition: transform .25s ease; }
+.asrep .toggle { appearance: none; width: 48px; height: 28px; background: #e5e7eb; border-radius: 9999px; position: relative; outline: none; cursor: pointer; border: 1px solid rgba(148,163,184,.6); transition: background-color .2s ease; }
+.asrep .toggle::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; background: #fff; border-radius: 9999px; transition: transform .25s ease; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
 .asrep .toggle:checked { background: #3b82f6; }
 .asrep .toggle:checked::after { transform: translateX(20px); }
 
@@ -29,8 +29,13 @@
 .asrep .diagram { display:flex; flex-direction: column; gap: 0.75rem; align-items: stretch; }
 @media (min-width: 768px) { .asrep .diagram { flex-direction: row; align-items: center; justify-content: space-around; } }
 .asrep .diagram .node { text-align:center; width: 100%; max-width: 260px; }
-.asrep .diagram .node .node-card { background: #f1f5f9; border-radius: 10px; padding: 0.75rem; }
+.asrep .diagram .node .node-card { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.9rem; }
 .asrep .diagram .arrow { height: 6px; border-radius: 9999px; width: 100%; position: relative; background: #cbd5e1; transition: background-color .25s ease; }
+.asrep .diagram .arrow::after { content: ""; position: absolute; right: -8px; top: 50%; transform: translateY(-50%); border-top: 8px solid transparent; border-bottom: 8px solid transparent; border-left: 8px solid #cbd5e1; transition: border-left-color .25s ease; }
+.asrep .diagram .arrow.arrow--good { background: #22c55e; }
+.asrep .diagram .arrow.arrow--good::after { border-left-color: #22c55e; }
+.asrep .diagram .arrow.arrow--bad { background: #ef4444; }
+.asrep .diagram .arrow.arrow--bad::after { border-left-color: #ef4444; }
 .asrep .diagram .label { text-align:center; font-weight: 600; font-size: 0.9rem; margin-top: 0.25rem; color: rgb(var(--gray-dark)); }
 
 .asrep .explain { background: #eff6ff; border-left: 4px solid #3b82f6; padding: 1rem; border-radius: 8px; }
@@ -43,7 +48,8 @@
 .asrep .sticky { position: sticky; top: 90px; }
 .asrep .step-content { display: none; opacity: 0; transition: opacity .3s ease; }
 .asrep .step-content.visible { display: block; opacity: 1; }
-.asrep .step-box { border: 2px solid transparent; border-radius: 10px; padding: 1rem; background: #fff; transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
+.asrep .step-box { border: 2px solid transparent; border-radius: 12px; padding: 1rem; background: #fff; transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
+.asrep .step-box:hover { border-color: #e2e8f0; }
 .asrep .step-box.active { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); border-color: #3b82f6; }
 .asrep .step-arrow { width: 1px; height: 28px; background: #cbd5e1; margin: 0.25rem auto; }
 
@@ -54,7 +60,7 @@
 .asrep .tooltip { position: absolute; bottom: 100%; left: 0; transform: translateY(-6px); width: 260px; background: #0f172a; color: #fff; padding: 0.5rem; font-size: 0.85rem; border-radius: 8px; opacity: 0; visibility: hidden; transition: opacity .2s ease; z-index: 2; }
 .asrep .api-call:hover .tooltip { opacity: 1; visibility: visible; }
 .asrep code.inline { background:#f1f5f9; color:#0f172a; padding: 2px 6px; border-radius: 6px; }
-.asrep pre { background:#0f172a; color:#e5e7eb; border-radius: 10px; padding: 1rem; overflow-x: auto; font-size: 0.9rem; }
+.asrep pre { background:#0f172a; color:#e5e7eb; border-radius: 10px; padding: 1rem; overflow-x: auto; font-size: 0.9rem; box-shadow: 0 4px 6px -2px rgba(0,0,0,0.1); }
 
 /* Mitigation */
 .asrep .list { padding-left: 1.25rem; }
@@ -257,14 +263,17 @@ call InitializeSecurityContext</code></pre>
       };
 
       function updateDiagram() {
+        if (!asReqArrow || !asRepArrow) return;
+        asReqArrow.classList.remove('arrow--good','arrow--bad');
+        asRepArrow.classList.remove('arrow--good','arrow--bad');
         if (toggle && toggle.checked) {
           explanationText.innerHTML = explanations.enabled;
-          asReqArrow.style.backgroundColor = '#22c55e';
-          asRepArrow.style.backgroundColor = '#22c55e';
+          asReqArrow.classList.add('arrow--good');
+          asRepArrow.classList.add('arrow--good');
         } else {
           explanationText.innerHTML = explanations.disabled;
-          asReqArrow.style.backgroundColor = '#ef4444';
-          asRepArrow.style.backgroundColor = '#ef4444';
+          asReqArrow.classList.add('arrow--bad');
+          asRepArrow.classList.add('arrow--bad');
         }
       }
 
@@ -339,4 +348,3 @@ call InitializeSecurityContext</code></pre>
     });
   </script>
 </div>
-
