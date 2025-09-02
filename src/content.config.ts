@@ -12,7 +12,13 @@ const blog = defineCollection({
     pubDate: z.coerce.date(),
     updatedDate: z.coerce.date().optional(),
     heroImage: z.string().optional(),
-    externalUrl: z.string().url().optional(),
+    // Allow absolute http(s) URLs or root-relative paths (e.g. "/as-rep-roasting-attack/")
+    externalUrl: z
+      .string()
+      .refine((val) => /^https?:\/\//i.test(val) || val.startsWith('/'), {
+        message: 'Must be an absolute http(s) URL or root-relative path',
+      })
+      .optional(),
     // Hide from listings and/or build
     unlisted: z.boolean().default(false),
     draft: z.boolean().default(false),
