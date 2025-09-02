@@ -5,19 +5,41 @@ export const onRequest: MiddlewareHandler = async (context, next) => {
 
   // Content Security Policy: allow same-origin assets, inline for now (interactive posts), and no framing.
   // If/when inline scripts are removed, tighten by dropping 'unsafe-inline' and adding nonces.
-  const csp = [
-    "default-src 'self'",
-    "script-src 'self'",
-    "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: https:",
-    "font-src 'self'",
-    "connect-src 'self'",
-    "frame-ancestors 'none'",
-    'object-src none',
-    'base-uri self',
-    'form-action self',
-    'upgrade-insecure-requests',
-  ].join('; ');
+  const path = context.url.pathname;
+  const isAsRepStandalone = path.startsWith('/blog/as-rep-roasting-attack');
+
+  const csp = (
+    isAsRepStandalone
+      ? [
+          "default-src 'self'",
+          // Allow inline script and Tailwind CDN for this interactive post only
+          "script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com",
+          // Allow Google Fonts stylesheet for this page
+          "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+          // Allow Google Fonts font files for this page
+          "font-src 'self' https://fonts.gstatic.com",
+          "img-src 'self' data: https:",
+          "connect-src 'self'",
+          "frame-ancestors 'none'",
+          'object-src none',
+          'base-uri self',
+          'form-action self',
+          'upgrade-insecure-requests',
+        ]
+      : [
+          "default-src 'self'",
+          "script-src 'self'",
+          "style-src 'self' 'unsafe-inline'",
+          "img-src 'self' data: https:",
+          "font-src 'self'",
+          "connect-src 'self'",
+          "frame-ancestors 'none'",
+          'object-src none',
+          'base-uri self',
+          'form-action self',
+          'upgrade-insecure-requests',
+        ]
+  ).join('; ');
 
   res.headers.set('Content-Security-Policy', csp);
   res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
