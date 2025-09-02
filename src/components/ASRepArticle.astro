@@ -1,0 +1,342 @@
+---
+---
+<style>
+/* Scoped styles for the AS-REP Roasting article */
+.asrep * { box-sizing: border-box; }
+.asrep { width: 100%; }
+
+.asrep .section { margin: 2rem 0; }
+.asrep .center { text-align: center; }
+.asrep .lead { color: rgb(var(--gray)); max-width: 58ch; margin: 0.5rem auto 0; }
+
+/* Simple chips and headers */
+.asrep h1 { font-size: 2.25rem; margin-bottom: 0.25rem; }
+.asrep h2 { font-size: 1.75rem; margin: 0; }
+.asrep h3 { font-size: 1.25rem; margin: 0; }
+.asrep p { color: rgb(var(--gray-dark)); }
+
+/* Card */
+.asrep .card { background: #fff; border: 1px solid rgb(var(--gray-light)); border-radius: 12px; padding: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03); }
+
+/* Toggle */
+.asrep .toggle-wrap { display:flex; align-items:center; justify-content:center; gap:0.5rem; margin-bottom: 0.75rem; }
+.asrep .toggle { appearance: none; width: 44px; height: 24px; background: #e5e7eb; border-radius: 9999px; position: relative; outline: none; cursor: pointer; border: 1px solid rgba(148,163,184,.6); }
+.asrep .toggle::after { content: ""; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; background: #fff; border-radius: 9999px; transition: transform .25s ease; }
+.asrep .toggle:checked { background: #3b82f6; }
+.asrep .toggle:checked::after { transform: translateX(20px); }
+
+/* Diagram */
+.asrep .diagram { display:flex; flex-direction: column; gap: 0.75rem; align-items: stretch; }
+@media (min-width: 768px) { .asrep .diagram { flex-direction: row; align-items: center; justify-content: space-around; } }
+.asrep .diagram .node { text-align:center; width: 100%; max-width: 260px; }
+.asrep .diagram .node .node-card { background: #f1f5f9; border-radius: 10px; padding: 0.75rem; }
+.asrep .diagram .arrow { height: 6px; border-radius: 9999px; width: 100%; position: relative; background: #cbd5e1; transition: background-color .25s ease; }
+.asrep .diagram .label { text-align:center; font-weight: 600; font-size: 0.9rem; margin-top: 0.25rem; color: rgb(var(--gray-dark)); }
+
+.asrep .explain { background: #eff6ff; border-left: 4px solid #3b82f6; padding: 1rem; border-radius: 8px; }
+.asrep .explain h4 { margin: 0 0 0.25rem 0; color: #1e40af; }
+.asrep .explain p { margin: 0; color: #1d4ed8; }
+
+/* Attack chain */
+.asrep .attack-grid { display: grid; gap: 1rem; }
+@media (min-width: 1024px) { .asrep .attack-grid { grid-template-columns: 1fr 2fr; align-items: start; } }
+.asrep .sticky { position: sticky; top: 90px; }
+.asrep .step-content { display: none; opacity: 0; transition: opacity .3s ease; }
+.asrep .step-content.visible { display: block; opacity: 1; }
+.asrep .step-box { border: 2px solid transparent; border-radius: 10px; padding: 1rem; background: #fff; transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
+.asrep .step-box.active { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); border-color: #3b82f6; }
+.asrep .step-arrow { width: 1px; height: 28px; background: #cbd5e1; margin: 0.25rem auto; }
+
+/* Malware analysis */
+.asrep .cols { display:grid; gap: 1rem; }
+@media (min-width: 768px) { .asrep .cols { grid-template-columns: 1fr 1fr; } }
+.asrep .api-call { position: relative; cursor: default; }
+.asrep .tooltip { position: absolute; bottom: 100%; left: 0; transform: translateY(-6px); width: 260px; background: #0f172a; color: #fff; padding: 0.5rem; font-size: 0.85rem; border-radius: 8px; opacity: 0; visibility: hidden; transition: opacity .2s ease; z-index: 2; }
+.asrep .api-call:hover .tooltip { opacity: 1; visibility: visible; }
+.asrep code.inline { background:#f1f5f9; color:#0f172a; padding: 2px 6px; border-radius: 6px; }
+.asrep pre { background:#0f172a; color:#e5e7eb; border-radius: 10px; padding: 1rem; overflow-x: auto; font-size: 0.9rem; }
+
+/* Mitigation */
+.asrep .list { padding-left: 1.25rem; }
+.asrep .list li { margin: 0.4rem 0; }
+.asrep .icon { font-size: 1.1rem; margin-right: 0.35rem; }
+
+/* Local nav for section jump */
+.asrep .local-nav { display:none; }
+@media (min-width: 768px) { .asrep .local-nav { display:block; text-align:center; margin: 0.25rem 0 1rem; }
+  .asrep .local-nav a { color: rgb(var(--gray)); margin: 0 0.5rem; text-decoration: none; }
+  .asrep .local-nav a:hover { color: var(--accent); }
+}
+</style>
+
+<div class="asrep">
+  <!-- Introduction -->
+  <section id="introduction" class="section center">
+    <h1>The Anatomy of an AS-REP Roasting Attack</h1>
+    <p class="lead">An interactive exploration of a common Active Directory attack. We'll dissect how a simple Kerberos misconfiguration can be exploited by attackers to compromise user credentials offline, and what technical artifacts this attack leaves behind.</p>
+    <nav class="local-nav" aria-label="Section navigation">
+      <a href="#kerberos-flow">Kerberos Flow</a>
+      <a href="#attack-chain">Attack Chain</a>
+      <a href="#malware-analysis">Malware Analysis</a>
+      <a href="#mitigation">Mitigation</a>
+    </nav>
+  </section>
+
+  <!-- Kerberos flow -->
+  <section id="kerberos-flow" class="section">
+    <div class="center" style="margin-bottom:0.75rem;">
+      <h2>Understanding the Kerberos Authentication Service</h2>
+      <p class="lead">Before we dive into the attack, let's understand the normal, secure process. The first step in Kerberos is the Authentication Service (AS) exchange, where a client proves its identity to get a master ticket, called a Ticket-Granting Ticket (TGT). This process relies on a key security feature: Pre-Authentication.</p>
+    </div>
+    <div class="card">
+      <div class="toggle-wrap">
+        <span style="color: rgb(var(--gray-dark)); font-weight: 600;">Pre-Authentication Disabled</span>
+        <input type="checkbox" id="preauth-toggle" class="toggle" checked aria-label="Toggle pre-authentication" />
+        <span style="color:#2563eb; font-weight: 600;">Pre-Authentication Enabled</span>
+      </div>
+
+      <div class="diagram" aria-labelledby="kerberos-diagram-title">
+        <div class="node">
+          <div class="node-card">
+            <h3>👤 Client</h3>
+            <p style="margin:0; color: rgb(var(--gray));">Wants to access resources.</p>
+          </div>
+        </div>
+
+        <div style="flex:1; min-width: 120px;">
+          <div id="as-req-arrow" class="arrow" role="presentation"></div>
+          <div id="as-req-label" class="label">1. AS-REQ</div>
+        </div>
+
+        <div class="node">
+          <div class="node-card">
+            <h3>🔑 KDC / AS</h3>
+            <p style="margin:0; color: rgb(var(--gray));">Authenticates users.</p>
+          </div>
+        </div>
+
+        <div style="flex:1; min-width: 120px;">
+          <div id="as-rep-arrow" class="arrow" role="presentation"></div>
+          <div id="as-rep-label" class="label">2. AS-REP</div>
+        </div>
+
+        <div class="node">
+          <div class="node-card">
+            <h3>🎟️ Encrypted TGT</h3>
+            <p style="margin:0; color: rgb(var(--gray));">Proof of identity.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="explain" style="margin-top:1rem;">
+        <h4>Flow Explanation</h4>
+        <p id="flow-explanation-text"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Attack chain -->
+  <section id="attack-chain" class="section">
+    <div class="center" style="margin-bottom:0.75rem;">
+      <h2>The AS-REP Roasting Attack Chain</h2>
+      <p class="lead">When Pre-Authentication is disabled for a user account, an attacker can exploit this misconfiguration. The KDC no longer validates the requester's identity, creating a critical vulnerability. Let's walk through the attack step by step.</p>
+    </div>
+
+    <div class="attack-grid">
+      <div>
+        <div class="sticky">
+          <div id="step-1-content" class="step-content">
+            <h3>Step 1: Discovery</h3>
+            <p>The attacker first needs to find user accounts that do not require Kerberos pre-authentication. This can be done by querying the domain controller for users with the 'UF_DONT_REQUIRE_PREAUTH' flag enabled.</p>
+          </div>
+          <div id="step-2-content" class="step-content">
+            <h3>Step 2: Request TGT</h3>
+            <p>The attacker sends an Authentication Service Request (AS-REQ) to the KDC, specifying one of the vulnerable usernames. Since pre-authentication is not required, the attacker doesn't need to provide any form of password or key.</p>
+          </div>
+          <div id="step-3-content" class="step-content">
+            <h3>Step 3: Receive Encrypted Data</h3>
+            <p>The KDC, seeing that the user account doesn't require pre-authentication, happily complies. It sends back an Authentication Service Response (AS-REP) containing the Ticket-Granting Ticket (TGT). A portion of this response is encrypted with the user's NTLM password hash.</p>
+          </div>
+          <div id="step-4-content" class="step-content">
+            <h3>Step 4: Offline Cracking</h3>
+            <p>The attacker now has the encrypted data (the AS-REP) and takes it offline. They use password cracking tools like Hashcat or John the Ripper to brute-force the password. Since this is offline, it generates no network noise and won't trigger lockouts. Eventually, they recover the user's cleartext password.</p>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="step-box" id="step-1-box"><p style="margin:0; font-weight:700;">1. Discovery: Find users with pre-auth disabled.</p></div>
+        <div class="step-arrow"></div>
+        <div class="step-box" id="step-2-box"><p style="margin:0; font-weight:700;">2. Request: Attacker sends AS-REQ for the vulnerable user.</p></div>
+        <div class="step-arrow"></div>
+        <div class="step-box" id="step-3-box"><p style="margin:0; font-weight:700;">3. Response: KDC returns AS-REP with encrypted TGT portion.</p></div>
+        <div class="step-arrow"></div>
+        <div class="step-box" id="step-4-box"><p style="margin:0; font-weight:700;">4. Crack: Attacker brute-forces the hash offline to get the password.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Malware analysis -->
+  <section id="malware-analysis" class="section">
+    <div class="center" style="margin-bottom:0.75rem;">
+      <h2>Malware Analyst's Perspective</h2>
+      <p class="lead">From a malware analysis viewpoint, specific patterns emerge when a binary performs this attack programmatically. The malware needs to interact with Windows security APIs to construct and send the Kerberos requests.</p>
+    </div>
+    <div class="cols">
+      <div class="card">
+        <h3 style="margin-bottom:0.5rem;">Key Windows API Calls</h3>
+        <p style="color: rgb(var(--gray));">A malicious program would use the Security Support Provider Interface (SSPI) to perform the attack. Look for these function calls, often used in sequence.</p>
+        <ul style="margin:0; padding-left: 1rem;">
+          <li class="api-call" style="margin:0.4rem 0;">
+            <code class="inline">AcquireCredentialsHandle</code>
+            <div class="tooltip">Gets a handle to a principal's pre-existing credentials. The malware might specify the 'Kerberos' package.</div>
+          </li>
+          <li class="api-call" style="margin:0.4rem 0;">
+            <code class="inline">InitializeSecurityContext (ISC_REQ_AS_REP)</code>
+            <div class="tooltip">This is the key function. It builds the security context. For AS-REP Roasting, it would be called to generate the AS-REQ message to send to the KDC.</div>
+          </li>
+          <li class="api-call" style="margin:0.4rem 0;">
+            <code class="inline">LsaConnectUntrusted / LsaCallAuthenticationPackage</code>
+            <div class="tooltip">Lower-level LSA functions that can also be used to manually construct and send Kerberos messages. Often seen in more sophisticated tools.</div>
+          </li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3 style="margin-bottom:0.5rem;">Assembly & Code Patterns</h3>
+        <p style="color: rgb(var(--gray));">At the assembly level, you'd find evidence of the necessary data structures being built and the API calls being prepared.</p>
+        <pre><code>; Pseudo-assembly for context building
+push [target_username]     ; Arg: Target principal name
+push [domain_name]         ; Arg: Target Realm
+push KERB_ETYPE_RC4_HMAC   ; Arg: Encryption type
+lea eax, [output_buffer]   ; Arg: Buffer to receive AS-REP
+push eax
+lea ecx, [input_buffer]    ; Arg: Structure with AS-REQ data
+push ecx
+call InitializeSecurityContext</code></pre>
+        <p style="font-size:0.95rem; color: rgb(var(--gray));">Also look for code that handles network sockets on TCP/UDP port 88 (the Kerberos port) and logic to parse the returned AS-REP structure to extract the encrypted hash.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mitigation -->
+  <section id="mitigation" class="section">
+    <div class="center" style="margin-bottom:0.75rem;">
+      <h2>Detection & Mitigation</h2>
+      <p class="lead">Protecting against AS-REP Roasting involves both proactive configuration and active monitoring.</p>
+    </div>
+    <div class="cols">
+      <div class="card">
+        <h3><span class="icon">✔️</span>Proactive Mitigation</h3>
+        <ul class="list">
+          <li><strong>Enable Pre-Authentication:</strong> Audit your Active Directory for any user or service accounts that have 'Do not require Kerberos preauthentication' enabled and disable it unless absolutely necessary.</li>
+          <li><strong>Strong Passwords:</strong> Enforce strong, complex, and long password policies. This makes the offline cracking step significantly more difficult and time-consuming for an attacker.</li>
+          <li><strong>Limit Privileged Accounts:</strong> Ensure that highly privileged accounts (like Domain Admins) never have pre-authentication disabled.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3><span class="icon">📡</span>Active Detection</h3>
+        <ul class="list">
+          <li><strong>Monitor Event Logs:</strong> Look for Kerberos event ID 4768 on your Domain Controllers. A large number of these events for accounts without pre-authentication can indicate an attack.</li>
+          <li><strong>Network Traffic Analysis:</strong> Monitor for unusual patterns of AS-REQ traffic to your KDCs, especially from non-standard workstations.</li>
+          <li><strong>Honey Accounts:</strong> Create tempting "honey" user accounts with pre-authentication disabled and monitor them for any authentication attempts. Any activity on these accounts is a strong indicator of malicious discovery.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const toggle = document.getElementById('preauth-toggle');
+      const explanationText = document.getElementById('flow-explanation-text');
+      const asReqArrow = document.getElementById('as-req-arrow');
+      const asRepArrow = document.getElementById('as-rep-arrow');
+
+      const explanations = {
+        enabled: "<strong>Secure Flow:</strong> With Pre-Authentication enabled, the client first sends an AS-REQ with a timestamp encrypted using its password hash. The KDC decrypts this to verify the client's identity before sending the AS-REP. This prevents an unauthenticated attacker from getting the encrypted TGT.",
+        disabled: "<strong>Vulnerable Flow:</strong> With Pre-Authentication disabled, the client sends a simple AS-REQ. The KDC does not verify the client's identity and immediately sends back an AS-REP containing the encrypted TGT portion. This is the misconfiguration that enables AS-REP Roasting."
+      };
+
+      function updateDiagram() {
+        if (toggle && toggle.checked) {
+          explanationText.innerHTML = explanations.enabled;
+          asReqArrow.style.backgroundColor = '#22c55e';
+          asRepArrow.style.backgroundColor = '#22c55e';
+        } else {
+          explanationText.innerHTML = explanations.disabled;
+          asReqArrow.style.backgroundColor = '#ef4444';
+          asRepArrow.style.backgroundColor = '#ef4444';
+        }
+      }
+
+      if (toggle) {
+        toggle.addEventListener('change', updateDiagram);
+        updateDiagram();
+      }
+
+      // Attack chain animation
+      const steps = [1, 2, 3, 4];
+      let currentStep = 0;
+      let stepInterval;
+
+      function setActiveStep(stepIndex) {
+        steps.forEach((s, index) => {
+          const box = document.getElementById(`step-${s}-box`);
+          const content = document.getElementById(`step-${s}-content`);
+          if (box && content) {
+            if (index === stepIndex) {
+              box.classList.add('active');
+              content.classList.add('visible');
+            } else {
+              box.classList.remove('active');
+              content.classList.remove('visible');
+            }
+          }
+        });
+      }
+
+      function advanceStep() {
+        currentStep = (currentStep + 1) % steps.length;
+        setActiveStep(currentStep);
+      }
+
+      function startStepAnimation() {
+        stopStepAnimation();
+        stepInterval = setInterval(advanceStep, 4000);
+      }
+
+      function stopStepAnimation() {
+        if (stepInterval) clearInterval(stepInterval);
+      }
+
+      steps.forEach((s, index) => {
+        const box = document.getElementById(`step-${s}-box`);
+        if (!box) return;
+        box.addEventListener('mouseenter', () => {
+          stopStepAnimation();
+          currentStep = index;
+          setActiveStep(currentStep);
+        });
+        box.addEventListener('mouseleave', () => {
+          startStepAnimation();
+        });
+      });
+
+      setActiveStep(0);
+      startStepAnimation();
+
+      // Smooth scroll for local links inside this component
+      const localLinks = Array.from(document.querySelectorAll('.asrep a[href^="#"]'));
+      localLinks.forEach((a) => {
+        a.addEventListener('click', (e) => {
+          const href = (e.currentTarget && e.currentTarget.getAttribute('href')) || '';
+          if (!href) return;
+          const el = document.querySelector(href);
+          if (!el) return;
+          e.preventDefault();
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      });
+    });
+  </script>
+</div>
+
