@@ -1,6 +1,5 @@
 // @ts-check
 import { defineConfig } from "astro/config";
-import cloudflare from "@astrojs/cloudflare";
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 
@@ -8,7 +7,5 @@ import sitemap from "@astrojs/sitemap";
 // https://astro.build/config
 export default defineConfig({
   site: "https://bilalarigun.com",
-  output: 'server',
-  adapter: cloudflare(),
   integrations: [mdx(), sitemap()],
 });

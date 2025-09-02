@@ -2,9 +2,4 @@
 
 interface Env {
 	ASSETS: Fetcher;
-	// Cloudflare D1 binding for messages storage
-	MESSAGES_DB: D1Database;
-	// Admin Basic Auth credentials (set as Workers secrets)
-	ADMIN_USER: string;
-	ADMIN_PASS: string;
 }
