@@ -36,6 +36,36 @@ and the path you take may not be the one you think you're on.
 			And I can assure you that if you hang around long enough, they will only beget more questions. 
 		Enjoy your stay, or don't. The choice, I suppose, is yours, but the consequences are mine.
 			</p>
+
+			<hr />
+			<section aria-labelledby="contact-heading">
+				<h2 id="contact-heading">Send me a private note</h2>
+				{Astro.url.searchParams.get('sent') ? (
+					<p role="status" style="padding:.5rem 1rem; background:#e6ffed; border:1px solid #b7ebc6;">
+						Thanks! Your message was sent.
+					</p>
+				) : null}
+				<form method="POST" action="/api/messages" style="display:grid; gap:.5rem; max-width: 560px;">
+					<label>
+						<span>Name (optional)</span>
+						<input type="text" name="name" autocomplete="name" />
+					</label>
+					<label>
+						<span>Email (optional)</span>
+						<input type="email" name="email" autocomplete="email" />
+					</label>
+					<label>
+						<span>Message</span>
+						<textarea name="message" required rows="5"></textarea>
+					</label>
+					<!-- Honeypot field to catch bots -->
+					<input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute; left:-9999px; width:1px; height:1px;" />
+					<button type="submit">Send</button>
+					<p style="color:#666; font-size:.9em;">
+						Your note is only visible to me and stored privately.
+					</p>
+				</form>
+			</section>
 		</main>
 		<Footer />
 	</body>

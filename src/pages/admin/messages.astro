@@ -1,0 +1,108 @@
+---
+import BaseHead from '../../components/BaseHead.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+
+type Env = {
+  MESSAGES_DB?: D1Database;
+  ADMIN_USER?: string;
+  ADMIN_PASS?: string;
+};
+
+const { request, locals } = Astro;
+const env = (locals as any).runtime?.env as Env | undefined;
+
+function unauthorized() {
+  return new Response('Unauthorized', {
+    status: 401,
+    headers: { 'WWW-Authenticate': 'Basic realm="Messages"' },
+  });
+}
+
+const auth = request.headers.get('authorization') || '';
+let ok = false;
+if (auth.startsWith('Basic ') && env?.ADMIN_USER && env?.ADMIN_PASS) {
+  const decoded = Buffer.from(auth.slice(6), 'base64').toString('utf8');
+  const [user, pass] = decoded.split(':');
+  ok = user === env.ADMIN_USER && pass === env.ADMIN_PASS;
+}
+
+if (!ok) {
+  throw unauthorized();
+}
+
+if (!env?.MESSAGES_DB) {
+  throw new Error('MESSAGES_DB is not configured');
+}
+
+await env.MESSAGES_DB.exec(`
+  CREATE TABLE IF NOT EXISTS messages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    created_at TEXT DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+    name TEXT,
+    email TEXT,
+    message TEXT NOT NULL,
+    ip TEXT
+  );
+`);
+
+const rows = await env.MESSAGES_DB.prepare(
+  'SELECT id, created_at, name, email, message, ip FROM messages ORDER BY datetime(created_at) DESC LIMIT 500'
+).all();
+
+const messages = (rows.results || []) as Array<{ id: number; created_at: string; name: string | null; email: string | null; message: string; ip: string | null }>;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead title={"Messages"} description={"Private messages"} />
+    <style>
+      table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+      th, td { border-bottom: 1px solid #ddd; padding: 8px; text-align: left; vertical-align: top; }
+      th { background: #f7f7f7; position: sticky; top: 0; }
+      tbody tr:hover { background: #fafafa; }
+      .muted { color: #666; font-size: 0.85em; }
+      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+      .wrap { white-space: pre-wrap; }
+      .container { max-width: 1100px; margin: 0 auto; padding: 1rem; }
+    </style>
+  </head>
+  <body>
+    <Header />
+    <main class="container">
+      <h1>Private Messages</h1>
+      <p class="muted">Newest first. Showing up to 500 entries.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>When</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Message</th>
+            <th>IP</th>
+          </tr>
+        </thead>
+        <tbody>
+          {messages.length === 0 ? (
+            <tr><td colspan="6" class="muted">No messages yet.</td></tr>
+          ) : (
+            messages.map((m) => (
+              <tr>
+                <td class="mono">{m.id}</td>
+                <td class="mono">{m.created_at}</td>
+                <td>{m.name || '-'}</td>
+                <td>{m.email || '-'}</td>
+                <td class="wrap">{m.message}</td>
+                <td class="mono">{m.ip || '-'}</td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </main>
+    <Footer />
+  </body>
+</html>
+
