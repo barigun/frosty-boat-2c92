@@ -307,6 +307,12 @@ $krb5asrep$23$USERACCOUNT@DOMAIN.COM:34524c96...
                 asRepLine.classList.remove('bg-green-500', 'bg-red-500');
             }
 
+            function swapBg(el, cls) {
+                if (!el) return;
+                el.classList.remove('bg-blue-500','bg-yellow-500','bg-red-500','bg-gray-400','bg-green-500');
+                el.classList.add(cls);
+            }
+
             function animateFlow(isSecure) {
                 resetAnimation();
                 const reqColor = isSecure ? 'bg-blue-500' : 'bg-red-500';
@@ -315,7 +321,7 @@ $krb5asrep$23$USERACCOUNT@DOMAIN.COM:34524c96...
 
                 // Step 1: Client sends AS-REQ
                 setTimeout(() => {
-                    asReqBox.classList.add(reqColor);
+                    swapBg(asReqBox, reqColor);
                     asReqBox.style.opacity = '1';
                     if (window.innerWidth < 768) {
                         asReqBox.style.transform = 'translateY(120px)';
@@ -326,7 +332,7 @@ $krb5asrep$23$USERACCOUNT@DOMAIN.COM:34524c96...
 
                 // Step 2: Line animates to KDC
                 setTimeout(() => {
-                    asReqLine.classList.add(lineColor);
+                    swapBg(asReqLine, lineColor);
                     if (window.innerWidth < 768) {
                         asReqLine.style.height = '120px';
                     } else {
@@ -349,9 +355,9 @@ $krb5asrep$23$USERACCOUNT@DOMAIN.COM:34524c96...
 
                 // Step 4: KDC sends AS-REP
                 setTimeout(() => {
-                    asRepBox.classList.add(repColor);
+                    swapBg(asRepBox, repColor);
                     asRepBox.style.opacity = '1';
-                    asRepLine.classList.add(lineColor);
+                    swapBg(asRepLine, lineColor);
                     if (window.innerWidth < 768) {
                         asRepBox.style.transform = 'translateY(-120px)';
                         asRepLine.style.height = '120px';
