@@ -13,6 +13,8 @@
             color: #1e293b;
             overflow-x: hidden;
         }
+        /* Ensure elements with Tailwind's `hidden` class are truly hidden even if Tailwind fails to load */
+        .hidden { display: none; }
         .flow-box {
             transition: transform 0.8s ease-in-out;
         }

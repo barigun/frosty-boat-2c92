@@ -10,7 +10,8 @@ export const onRequest: MiddlewareHandler = async (context, next) => {
   const csp = [
     "default-src 'self'",
     // Inline scripts are required for self-contained interactive pages.
-    "script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com",
+    // Tailwind CDN requires 'unsafe-eval' for its runtime.
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com",
     // Allow inline styles and Google Fonts stylesheet
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     // Allow images from same-origin, data URIs, and https
