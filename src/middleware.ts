@@ -5,12 +5,18 @@ export const onRequest: MiddlewareHandler = async (context, next) => {
 
   // Content Security Policy: allow same-origin assets, inline for now (interactive posts), and no framing.
   // If/when inline scripts are removed, tighten by dropping 'unsafe-inline' and adding nonces.
+  // Allow inline scripts and specific CDNs used by interactive articles.
+  // Tailwind CDN script + Google Fonts CSS/Fonts need explicit sources.
   const csp = [
     "default-src 'self'",
-    "script-src 'self'",
-    "style-src 'self' 'unsafe-inline'",
+    // Inline scripts are required for self-contained interactive pages.
+    "script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com",
+    // Allow inline styles and Google Fonts stylesheet
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    // Allow images from same-origin, data URIs, and https
     "img-src 'self' data: https:",
-    "font-src 'self'",
+    // Permit Google Fonts font files
+    "font-src 'self' https://fonts.gstatic.com",
     "connect-src 'self'",
     "frame-ancestors 'none'",
     'object-src none',
