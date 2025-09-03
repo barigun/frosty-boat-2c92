@@ -25,4 +25,23 @@ const blog = defineCollection({
   }),
 });
 
-export const collections = { blog };
+// New collection: interactive articles (MD/MDX entries that can link to routed HTML pages)
+const interactive = defineCollection({
+  loader: glob({ base: "./src/content/interactive", pattern: "**/*.{md,mdx}" }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    pubDate: z.coerce.date(),
+    updatedDate: z.coerce.date().optional(),
+    externalUrl: z
+      .string()
+      .refine((val) => /^https?:\/\//i.test(val) || val.startsWith('/'), {
+        message: 'Must be an absolute http(s) URL or root-relative path',
+      })
+      .optional(),
+    unlisted: z.boolean().default(false),
+    draft: z.boolean().default(false),
+  }),
+});
+
+export const collections = { blog, interactive };
