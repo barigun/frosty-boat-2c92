@@ -26,22 +26,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function animateFlow(isSecure) {
     resetAnimation();
-    const reqColor = isSecure ? 'bg-blue-500' : 'bg-red-500';
-    const repColor = isSecure ? 'bg-yellow-500' : 'bg-red-500';
-    const lineColor = isSecure ? 'bg-green-500' : 'bg-red-500';
+    const reqColor = isSecure ? '#3b82f6' : '#ef4444'; // blue/red
+    const repColor = isSecure ? '#eab308' : '#ef4444'; // yellow/red
+    const lineColor = isSecure ? '#22c55e' : '#ef4444'; // green/red
+
+    // set lines neutral first
+    asReqLine.style.backgroundColor = '#9ca3af'; // gray-400
+    asRepLine.style.backgroundColor = '#9ca3af';
 
     // Animate AS-REQ
-    asReqBox.classList.remove('bg-blue-500', 'bg-red-500');
-    asReqBox.classList.add(reqColor);
-    asReqLine.classList.remove('bg-gray-400', 'bg-red-500', 'bg-green-500');
-    asReqLine.classList.add('bg-gray-400');
-    asRepLine.classList.remove('bg-gray-400', 'bg-red-500', 'bg-green-500');
-    asRepLine.classList.add('bg-gray-400');
-
+    asReqBox.style.backgroundColor = reqColor;
     asReqBox.style.opacity = '1';
     setTimeout(() => {
-      asReqLine.classList.remove('bg-gray-400');
-      asReqLine.classList.add(lineColor);
+      asReqLine.style.backgroundColor = lineColor;
       if (window.innerWidth < 768) {
         asReqBox.style.transform = 'translateY(120px)';
         asReqLine.style.height = '120px';
@@ -53,11 +50,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Animate AS-REP
     setTimeout(() => {
-      asRepBox.classList.remove('bg-yellow-500', 'bg-red-500');
-      asRepBox.classList.add(repColor);
+      asRepBox.style.backgroundColor = repColor;
       asRepBox.style.opacity = '1';
-      asRepLine.classList.remove('bg-gray-400');
-      asRepLine.classList.add(lineColor);
+      asRepLine.style.backgroundColor = lineColor;
       if (window.innerWidth < 768) {
         asRepBox.style.transform = 'translateY(-120px)';
         asRepLine.style.height = '120px';
@@ -219,4 +214,3 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 });
-
