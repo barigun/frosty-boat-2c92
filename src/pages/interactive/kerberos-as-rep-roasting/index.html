@@ -13,8 +13,6 @@
             color: #1e293b;
             overflow-x: hidden;
         }
-        /* Ensure elements with Tailwind's `hidden` class are truly hidden even if Tailwind fails to load */
-        .hidden { display: none; }
         .flow-box {
             transition: transform 0.8s ease-in-out;
         }
@@ -307,12 +305,6 @@ $krb5asrep$23$USERACCOUNT@DOMAIN.COM:34524c96...
                 asRepLine.classList.remove('bg-green-500', 'bg-red-500');
             }
 
-            function swapBg(el, cls) {
-                if (!el) return;
-                el.classList.remove('bg-blue-500','bg-yellow-500','bg-red-500','bg-gray-400','bg-green-500');
-                el.classList.add(cls);
-            }
-
             function animateFlow(isSecure) {
                 resetAnimation();
                 const reqColor = isSecure ? 'bg-blue-500' : 'bg-red-500';
@@ -321,7 +313,7 @@ $krb5asrep$23$USERACCOUNT@DOMAIN.COM:34524c96...
 
                 // Step 1: Client sends AS-REQ
                 setTimeout(() => {
-                    swapBg(asReqBox, reqColor);
+                    asReqBox.classList.add(reqColor);
                     asReqBox.style.opacity = '1';
                     if (window.innerWidth < 768) {
                         asReqBox.style.transform = 'translateY(120px)';
@@ -332,7 +324,7 @@ $krb5asrep$23$USERACCOUNT@DOMAIN.COM:34524c96...
 
                 // Step 2: Line animates to KDC
                 setTimeout(() => {
-                    swapBg(asReqLine, lineColor);
+                    asReqLine.classList.add(lineColor);
                     if (window.innerWidth < 768) {
                         asReqLine.style.height = '120px';
                     } else {
@@ -355,9 +347,9 @@ $krb5asrep$23$USERACCOUNT@DOMAIN.COM:34524c96...
 
                 // Step 4: KDC sends AS-REP
                 setTimeout(() => {
-                    swapBg(asRepBox, repColor);
+                    asRepBox.classList.add(repColor);
                     asRepBox.style.opacity = '1';
-                    swapBg(asRepLine, lineColor);
+                    asRepLine.classList.add(lineColor);
                     if (window.innerWidth < 768) {
                         asRepBox.style.transform = 'translateY(-120px)';
                         asRepLine.style.height = '120px';
