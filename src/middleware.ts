@@ -9,14 +9,15 @@ export const onRequest: MiddlewareHandler = async (context, next) => {
   // Tailwind CDN script + Google Fonts CSS/Fonts need explicit sources.
   const csp = [
     "default-src 'self'",
-    // Allow self-hosted scripts and Cloudflare Analytics
-    "script-src 'self' https://static.cloudflareinsights.com",
-    // Allow inline styles for interactive pages
-    "style-src 'self' 'unsafe-inline'",
+    // Allow self, inline scripts for interactive pages, Tailwind CDN, and Cloudflare Analytics
+    "script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://static.cloudflareinsights.com",
+    // Allow inline styles and Google Fonts CSS
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     // Allow images from same-origin, data URIs, and https
     "img-src 'self' data: https:",
-    // Allow self-hosted fonts only
-    "font-src 'self'",
+    // Allow self-hosted fonts and Google Fonts font files
+    "font-src 'self' https://fonts.gstatic.com",
+    // Allow analytics beacons
     "connect-src 'self' https://cloudflareinsights.com",
     "frame-ancestors 'none'",
     'object-src none',
