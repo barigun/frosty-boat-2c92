@@ -47,5 +47,14 @@ export const onRequest: MiddlewareHandler = async (context, next) => {
   // Prevent other origins from fetching your assets cross-origin by default.
   res.headers.set('Cross-Origin-Resource-Policy', 'same-origin');
 
+  // Ensure HTML requests always get a proper Content-Type, preventing browser downloads.
+  try {
+    const accept = context.request.headers.get('accept') || '';
+    const hasContentType = res.headers.has('Content-Type') || res.headers.has('content-type');
+    if (!hasContentType && accept.includes('text/html')) {
+      res.headers.set('Content-Type', 'text/html; charset=utf-8');
+    }
+  } catch {}
+
   return res;
 };

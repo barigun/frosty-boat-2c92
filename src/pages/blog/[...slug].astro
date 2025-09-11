@@ -1,23 +1,26 @@
 ---
-import { type CollectionEntry, getCollection } from 'astro:content';
+import { getEntry, render } from 'astro:content';
 import BlogPost from '../../layouts/BlogPost.astro';
-import { render } from 'astro:content';
 
-export async function getStaticPaths() {
-	const posts = await getCollection('blog', ({ data }) => !data.draft);
-	return posts.map((post) => ({
-		params: { slug: post.id },
-		props: post,
-	}));
+// SSR-friendly blog route: resolve entry by the requested slug.
+const raw = Astro.params.slug;
+const slug = Array.isArray(raw) ? raw.join('/') : (raw ?? '');
+
+// Fetch the blog entry for this slug at runtime (Cloudflare SSR).
+const post = await getEntry('blog', slug);
+if (!post) {
+  // Return a 404 response if the post is not found.
+  return new Response(null, { status: 404 });
 }
-type Props = CollectionEntry<'blog'>;
 
-const post = Astro.props;
 if (post.data.externalUrl) {
+  // Allow redirecting to internal routes (e.g., interactive pages) or external URLs.
   return Astro.redirect(post.data.externalUrl);
 }
+
 const { Content } = await render(post);
 ---
+
 
 <BlogPost {...post.data}>
 	<Content />
